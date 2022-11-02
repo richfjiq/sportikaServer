@@ -1,0 +1,30 @@
+{
+	"name": "sportikaserver",
+	"version": "1.0.0",
+	"main": "index.js",
+	"license": "MIT",
+	"scripts": {
+		"lint": "eslint --ext .ts src/ --max-warnings 0",
+		"prepare": "husky install"
+	},
+	"devDependencies": {
+		"@typescript-eslint/eslint-plugin": "^5.0.0",
+		"eslint": "^8.0.1",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-config-standard-with-typescript": "^23.0.0",
+		"eslint-plugin-import": "^2.25.2",
+		"eslint-plugin-n": "^15.0.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"eslint-plugin-promise": "^6.0.0",
+		"husky": "^8.0.0",
+		"lint-staged": "^13.0.3",
+		"prettier": "^2.7.1",
+		"typescript": "*"
+	},
+	"lint-staged": {
+		"src/**/*": [
+			"yarn run lint",
+			"prettier --write"
+		]
+	}
+}
