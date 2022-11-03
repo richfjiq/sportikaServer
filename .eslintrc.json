@@ -19,6 +19,9 @@
 	"rules": {
 		"prettier/prettier": "error",
 		"no-console": "warn",
-		"no-unused-vars": "warn"
+		"no-unused-vars": "warn",
+		"@typescript-eslint/no-var-requires": 0,
+		"no-mixed-spaces-and-tabs": 0,
+		"@typescript-eslint/no-misused-promises": 0
 	}
 }
