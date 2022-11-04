@@ -2,6 +2,8 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+import adminRoutes from '../routes/admin';
+import orderRoutes from '../routes/orders';
 import productRoutes from '../routes/products';
 import searchRoutes from '../routes/search';
 import userRoutes from '../routes/user';
@@ -12,6 +14,8 @@ class Server {
 	private readonly app: Application;
 	private readonly port: string;
 	private readonly apiPaths = {
+		admin: '/api/admin',
+		orders: '/api/orders',
 		products: '/api/products',
 		search: '/api/search',
 		user: '/api/user',
@@ -41,6 +45,8 @@ class Server {
 	}
 
 	routes(): void {
+		this.app.use(this.apiPaths.admin, adminRoutes);
+		this.app.use(this.apiPaths.orders, orderRoutes);
 		this.app.use(this.apiPaths.products, productRoutes);
 		this.app.use(this.apiPaths.search, searchRoutes);
 		this.app.use(this.apiPaths.user, userRoutes);
