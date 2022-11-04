@@ -1,5 +1,6 @@
 import { IOrder } from './order';
 import { IProduct } from './products';
+import { IUser } from './user';
 
 export type DataDashboard =
 	| {
@@ -29,3 +30,9 @@ export type DataProducts =
 export interface DataUpload {
 	message: string;
 }
+
+export type DataUsers =
+	| {
+			message: string;
+	  }
+	| IUser[];

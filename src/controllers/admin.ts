@@ -4,7 +4,14 @@ import { v2 as cloudinary } from 'cloudinary';
 import formidable from 'formidable';
 
 import { db } from '../database';
-import { DataDashboard, DataOrders, DataProducts, DataUpload, IProduct } from '../interfaces';
+import {
+	DataDashboard,
+	DataOrders,
+	DataProducts,
+	DataUpload,
+	DataUsers,
+	IProduct,
+} from '../interfaces';
 import { Order, Product, User } from '../models';
 
 export const dashboardInfo = async (req: Request, res: Response<DataDashboard>): Promise<void> => {
@@ -156,4 +163,39 @@ const parseFiles = async (req: Request): Promise<string> => {
 export const uploadFile = async (req: Request, res: Response<DataUpload>): Promise<void> => {
 	const imageUrl = await parseFiles(req);
 	res.status(200).json({ message: imageUrl });
+};
+
+export const getUsers = async (req: Request, res: Response<DataUsers>): Promise<void> => {
+	await db.connect();
+	const users = await User.find().select('-password').lean();
+	await db.disconnect();
+	res.status(200).json(users);
+};
+
+export const updateUsers = async (req: Request, res: Response<DataUsers>): Promise<void> => {
+	const { userId = '', role = '' } = req.body;
+
+	if (!isValidObjectId(userId)) {
+		res.status(400).json({ message: 'There is no user with this id.' });
+		return;
+	}
+
+	const validRoles = ['admin', 'client'];
+	if (!validRoles.includes(role)) {
+		res.status(404).json({ message: 'Role not allowed.' });
+		return;
+	}
+
+	await db.connect();
+	const user = await User.findById(userId);
+	if (user === null) {
+		await db.disconnect();
+		res.status(404).json({ message: `User not found: ${String(userId)}` });
+		return;
+	}
+	user.role = role;
+	await user.save();
+	await db.disconnect();
+
+	res.status(200).json({ message: 'Updated user.' });
 };

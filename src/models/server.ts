@@ -7,6 +7,7 @@ import orderRoutes from '../routes/orders';
 import productRoutes from '../routes/products';
 import searchRoutes from '../routes/search';
 import userRoutes from '../routes/user';
+import { checkJWT, isAdminRole } from '../middlewares';
 
 dotenv.config();
 
@@ -45,7 +46,7 @@ class Server {
 	}
 
 	routes(): void {
-		this.app.use(this.apiPaths.admin, adminRoutes);
+		this.app.use(this.apiPaths.admin, [checkJWT, isAdminRole], adminRoutes);
 		this.app.use(this.apiPaths.orders, orderRoutes);
 		this.app.use(this.apiPaths.products, productRoutes);
 		this.app.use(this.apiPaths.search, searchRoutes);
