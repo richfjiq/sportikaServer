@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { IUser } from '../interfaces';
 
+import { db } from '../database';
+import { IUser } from '../interfaces';
 import { User } from '../models';
 import { jwt } from '../utils';
 
@@ -13,7 +14,7 @@ export const checkJWT = async (
 	res: Response,
 	next: NextFunction,
 ): Promise<void> => {
-	const token = req.header('x-token');
+	const token = (req.headers['x-token'] as string) ?? undefined;
 
 	if (token === undefined) {
 		res.status(401).json({
@@ -25,7 +26,8 @@ export const checkJWT = async (
 	try {
 		const userId = await jwt.isValidToken(token);
 
-		// leer el usuario que corresponde al uid
+		await db.connect();
+
 		const user = await User.findById(userId);
 
 		if (user === null) {
@@ -35,20 +37,13 @@ export const checkJWT = async (
 			return;
 		}
 
-		// Verificar si el uid tiene estado true
-		// if (!usuario.estado) {
-		// 	res.status(401).json({
-		// 		msg: 'Token no válido - usuario con estado: false',
-		// 	});
-		// 	return;
-		// }
-
 		req.user = user;
+		await db.disconnect();
 		next();
 	} catch (error) {
-		// console.log(error);
 		res.status(401).json({
 			msg: 'Invalid token.',
 		});
+		await db.disconnect();
 	}
 };
