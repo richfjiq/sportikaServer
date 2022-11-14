@@ -28,12 +28,12 @@ export const loginUser = async (req: Request, res: Response<Data>): Promise<void
 
 	if (user === null) {
 		res.status(400).json({ message: 'Email / Password not valid - Email' });
-		return;
+		throw Error('Email / Password not valid - Email');
 	}
 
 	if (!bcrypt.compareSync(password, String(user.password))) {
 		res.status(400).json({ message: 'Email / Password not valid - Password' });
-		return;
+		throw Error('Email / Password not valid - Password');
 	}
 
 	const { role, name, _id } = user;
