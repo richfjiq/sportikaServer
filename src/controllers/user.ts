@@ -119,10 +119,7 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 };
 
 export const checkJWT = async (req: Request, res: Response<Data>): Promise<void> => {
-	// console.log(req.headers.cookie);
-
-	// const { token = '' } = req.cookies;
-	const token = req.headers.cookie ?? '';
+	const token = req.header('x-token') ?? '';
 
 	let userId = '';
 
