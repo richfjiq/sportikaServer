@@ -13,6 +13,7 @@ type Data =
 	| {
 			token: string;
 			user: {
+				_id: string;
 				email: string;
 				name: string;
 				role: string;
@@ -42,6 +43,7 @@ export const loginUser = async (req: Request, res: Response<Data>): Promise<void
 	res.status(200).json({
 		token,
 		user: {
+			_id,
 			email,
 			role,
 			name,
@@ -111,6 +113,7 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 	res.status(200).json({
 		token,
 		user: {
+			_id,
 			email,
 			role,
 			name,
@@ -146,6 +149,7 @@ export const checkJWT = async (req: Request, res: Response<Data>): Promise<void>
 	res.status(200).json({
 		token: jwt.signToken(_id, email),
 		user: {
+			_id,
 			email,
 			role,
 			name,

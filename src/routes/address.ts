@@ -6,6 +6,6 @@ const router = Router();
 
 router.post('/', [checkJWT], createAddress);
 router.put('/', [checkJWT], updateAddress);
-router.get('/', [checkJWT], getAddressByUser);
+router.get('/:id', [checkJWT], getAddressByUser);
 
 export default router;

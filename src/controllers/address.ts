@@ -61,7 +61,7 @@ export const updateAddress = async (req: Request, res: Response): Promise<void> 
 };
 
 export const getAddressByUser = async (req: Request, res: Response): Promise<void> => {
-	const id = req.body.id as string;
+	const { id } = req.params;
 
 	try {
 		await db.connect();
