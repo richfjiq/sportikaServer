@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 
 import adminRoutes from '../routes/admin';
+import addressRoutes from '../routes/address';
 import orderRoutes from '../routes/orders';
 import productRoutes from '../routes/products';
 import searchRoutes from '../routes/search';
@@ -16,6 +17,7 @@ class Server {
 	private readonly port: string;
 	private readonly apiPaths = {
 		admin: '/api/admin',
+		address: '/api/address',
 		orders: '/api/orders',
 		products: '/api/products',
 		search: '/api/search',
@@ -47,6 +49,7 @@ class Server {
 
 	routes(): void {
 		this.app.use(this.apiPaths.admin, [checkJWT, isAdminRole], adminRoutes);
+		this.app.use(this.apiPaths.address, addressRoutes);
 		this.app.use(this.apiPaths.orders, orderRoutes);
 		this.app.use(this.apiPaths.products, productRoutes);
 		this.app.use(this.apiPaths.search, searchRoutes);

@@ -18,7 +18,7 @@ router.get('/products', getProducts);
 router.post('/products', createProduct);
 router.put('/products', updateProduct);
 router.post('/upload', uploadFile);
-router.post('/users', getUsers);
+router.get('/users', getUsers);
 router.put('/users', updateUsers);
 
 export default router;

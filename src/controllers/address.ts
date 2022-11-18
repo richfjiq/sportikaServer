@@ -1,0 +1,75 @@
+import { Request, Response } from 'express';
+
+import { db } from '../database';
+import { IAddress } from '../interfaces';
+import Address from '../models/Address';
+
+export const createAddress = async (req: Request, res: Response): Promise<void> => {
+	const { user, firstName, lastName, address, zip, city, country, code, phone } =
+		req.body as IAddress;
+
+	try {
+		await db.connect();
+		const userAddress = new Address({
+			user,
+			firstName,
+			lastName,
+			address,
+			zip,
+			city,
+			country,
+			code,
+			phone,
+		});
+
+		await userAddress.save();
+		res.status(201).json(userAddress);
+		await db.disconnect();
+	} catch (error) {
+		await db.disconnect();
+		res.status(400).json({ message: 'Server error.' });
+	}
+};
+
+export const updateAddress = async (req: Request, res: Response): Promise<void> => {
+	const { _id, user, firstName, lastName, address, zip, city, country, code, phone } =
+		req.body as IAddress;
+
+	try {
+		await db.connect();
+		const userAddress = await Address.findByIdAndUpdate(
+			_id,
+			{
+				user,
+				firstName,
+				lastName,
+				address,
+				zip,
+				city,
+				country,
+				code,
+				phone,
+			},
+			{ new: true },
+		);
+		res.status(201).json(userAddress);
+		await db.disconnect();
+	} catch (error) {
+		await db.disconnect();
+		res.status(400).json({ message: 'Server error.' });
+	}
+};
+
+export const getAddressByUser = async (req: Request, res: Response): Promise<void> => {
+	const id = req.body.id as string;
+
+	try {
+		await db.connect();
+		const userAddress = await Address.findById(id);
+		res.status(201).json(userAddress);
+		await db.disconnect();
+	} catch (error) {
+		await db.disconnect();
+		res.status(400).json({ message: 'Server error.' });
+	}
+};
