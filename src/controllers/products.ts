@@ -23,7 +23,7 @@ export const getProducts = async (req: Request, res: Response<Data>): Promise<vo
 	await db.connect();
 
 	const products = await Product.find(condition)
-		.select('gender title images price slug inStock -_id')
+		.select('gender title images price slug inStock description -_id')
 		.lean();
 
 	await db.disconnect();
@@ -36,7 +36,7 @@ export const getProductBySlug = async (req: Request, res: Response<Data>): Promi
 	await db.connect();
 
 	const product = await Product.findOne({ slug })
-		.select('gender title images price slug inStock -_id')
+		.select('gender title images price slug inStock description -_id')
 		.lean();
 
 	await db.disconnect();

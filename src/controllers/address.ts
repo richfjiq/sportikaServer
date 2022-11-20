@@ -65,7 +65,7 @@ export const getAddressByUser = async (req: Request, res: Response): Promise<voi
 
 	try {
 		await db.connect();
-		const userAddress = await Address.find({ user: id });
+		const userAddress = await Address.find({ user: id }).select('-__v');
 		res.status(201).json(userAddress);
 		await db.disconnect();
 	} catch (error) {
