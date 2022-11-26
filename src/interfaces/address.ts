@@ -9,6 +9,7 @@ export interface IAddress {
 	address2?: string;
 	zip: string;
 	city: string;
+	state?: string;
 	country: string;
 	code: string;
 	phone: string;

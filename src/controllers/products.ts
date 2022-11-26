@@ -20,34 +20,45 @@ export const getProducts = async (req: Request, res: Response<Data>): Promise<vo
 		condition = { gender };
 	}
 
-	await db.connect();
+	try {
+		await db.connect();
 
-	const products = await Product.find(condition)
-		.select('gender title images price slug inStock description -_id')
-		.lean();
+		const products = await Product.find(condition)
+			.select('gender title images price slug inStock description -_id')
+			.lean();
 
-	await db.disconnect();
-
-	res.status(200).json(products);
+		res.status(200).json(products);
+		await db.disconnect();
+	} catch (error) {
+		res.status(404).json({ message: 'Server Error.' });
+		await db.disconnect();
+	}
 };
 
 export const getProductBySlug = async (req: Request, res: Response<Data>): Promise<void> => {
 	const { slug } = req.params;
-	await db.connect();
 
-	const product = await Product.findOne({ slug })
-		.select('gender title images price slug inStock description -_id')
-		.lean();
+	try {
+		await db.connect();
 
-	await db.disconnect();
+		const product = await Product.findOne({ slug })
+			.select('gender title images price slug inStock description sizes _id')
+			.lean();
 
-	if (product === null) {
+		if (product === null) {
+			res.status(404).json({
+				message: 'Product not found.',
+			});
+
+			return;
+		}
+
+		res.status(200).json(product);
+		await db.disconnect();
+	} catch (error) {
 		res.status(404).json({
-			message: 'Product not found.',
+			message: 'Server Error.',
 		});
-
-		return;
+		await db.disconnect();
 	}
-
-	res.status(200).json(product);
 };

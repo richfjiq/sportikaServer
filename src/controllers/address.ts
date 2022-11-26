@@ -5,7 +5,7 @@ import { IAddress } from '../interfaces';
 import Address from '../models/Address';
 
 export const createAddress = async (req: Request, res: Response): Promise<void> => {
-	const { user, firstName, lastName, address, zip, city, country, code, phone } =
+	const { user, firstName, lastName, address, zip, city, state, country, code, phone } =
 		req.body as IAddress;
 
 	try {
@@ -17,6 +17,7 @@ export const createAddress = async (req: Request, res: Response): Promise<void> 
 			address,
 			zip,
 			city,
+			state,
 			country,
 			code,
 			phone,
@@ -32,7 +33,7 @@ export const createAddress = async (req: Request, res: Response): Promise<void> 
 };
 
 export const updateAddress = async (req: Request, res: Response): Promise<void> => {
-	const { _id, user, firstName, lastName, address, zip, city, country, code, phone } =
+	const { _id, user, firstName, lastName, address, zip, city, state, country, code, phone } =
 		req.body as IAddress;
 
 	try {
@@ -46,6 +47,7 @@ export const updateAddress = async (req: Request, res: Response): Promise<void> 
 				address,
 				zip,
 				city,
+				state,
 				country,
 				code,
 				phone,

@@ -10,6 +10,7 @@ const addressSchema = new Schema({
 	address2: { type: String },
 	zip: { type: String, required: true },
 	city: { type: String, required: true },
+	state: { type: String },
 	country: { type: String, required: true },
 	code: { type: String, required: true },
 	phone: { type: String, required: true },
