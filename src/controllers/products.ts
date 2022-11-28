@@ -23,6 +23,16 @@ export const getProducts = async (req: Request, res: Response<Data>): Promise<vo
 	try {
 		await db.connect();
 
+		if (gender === 'all') {
+			const products = await Product.find();
+
+			res.status(200).json(products);
+
+			await db.disconnect();
+
+			return;
+		}
+
 		const products = await Product.find(condition)
 			.select('gender title images price slug inStock description -_id')
 			.lean();
