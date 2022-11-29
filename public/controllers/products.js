@@ -22,20 +22,20 @@ const getProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         yield database_1.db.connect();
         if (gender === 'all') {
-            const products = yield models_1.Product.find();
-            res.status(200).json(products);
+            const products = yield models_1.Product.find({});
             yield database_1.db.disconnect();
+            res.status(200).json(products);
             return;
         }
         const products = yield models_1.Product.find(condition)
             .select('gender title images price slug inStock description -_id')
             .lean();
-        res.status(200).json(products);
         yield database_1.db.disconnect();
+        res.status(200).json(products);
     }
     catch (error) {
-        res.status(404).json({ message: 'Server Error.' });
         yield database_1.db.disconnect();
+        res.status(404).json({ message: 'Server Error.' });
     }
 });
 exports.getProducts = getProducts;
@@ -50,16 +50,17 @@ const getProductBySlug = (req, res) => __awaiter(void 0, void 0, void 0, functio
             res.status(404).json({
                 message: 'Product not found.',
             });
+            yield database_1.db.disconnect();
             return;
         }
-        res.status(200).json(product);
         yield database_1.db.disconnect();
+        res.status(200).json(product);
     }
     catch (error) {
+        yield database_1.db.disconnect();
         res.status(404).json({
             message: 'Server Error.',
         });
-        yield database_1.db.disconnect();
     }
 });
 exports.getProductBySlug = getProductBySlug;

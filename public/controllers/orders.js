@@ -34,7 +34,8 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const taxRate = Number((_a = process.env.NEXT_PUBLIC_TAX_RATE) !== null && _a !== void 0 ? _a : 0);
         const backendTotal = subTotal * (taxRate + 1);
         if (total !== backendTotal) {
-            throw new Error('Total does not match.');
+            res.status(400).json({ message: 'Total does not match.' });
+            return;
         }
         const userId = user._id;
         const newOrder = new models_1.Order(Object.assign(Object.assign({}, req.body), { isPaid: false, user: userId }));
@@ -56,6 +57,7 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             return;
         }
     }
+    yield database_1.db.disconnect();
     res.status(201).json(req.body);
 });
 exports.createOrder = createOrder;

@@ -86,6 +86,7 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 		res.status(400).json({
 			message: 'Email already exists.',
 		});
+		await db.disconnect();
 		return;
 	}
 

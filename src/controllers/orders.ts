@@ -40,7 +40,8 @@ export const createOrder = async (req: CustomRequest, res: Response<Data>): Prom
 		const backendTotal = subTotal * (taxRate + 1);
 
 		if (total !== backendTotal) {
-			throw new Error('Total does not match.');
+			res.status(400).json({ message: 'Total does not match.' });
+			return;
 		}
 
 		const userId = user._id;
@@ -70,6 +71,6 @@ export const createOrder = async (req: CustomRequest, res: Response<Data>): Prom
 			return;
 		}
 	}
-
+	await db.disconnect();
 	res.status(201).json(req.body);
 };

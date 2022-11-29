@@ -42,10 +42,11 @@ const createAddress = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 });
 exports.createAddress = createAddress;
 const updateAddress = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { _id, user, firstName, lastName, address, zip, city, state, country, code, phone } = req.body;
+    const { user, firstName, lastName, address, zip, city, state, country, code, phone } = req.body;
     try {
         yield database_1.db.connect();
-        const userAddress = yield Address_1.default.findByIdAndUpdate(_id, {
+        const obj = yield Address_1.default.find({ user });
+        const userAddress = yield Address_1.default.findByIdAndUpdate(obj[0]._id, {
             user,
             firstName,
             lastName,

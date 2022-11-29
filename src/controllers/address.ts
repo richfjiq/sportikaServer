@@ -33,13 +33,14 @@ export const createAddress = async (req: Request, res: Response): Promise<void> 
 };
 
 export const updateAddress = async (req: Request, res: Response): Promise<void> => {
-	const { _id, user, firstName, lastName, address, zip, city, state, country, code, phone } =
+	const { user, firstName, lastName, address, zip, city, state, country, code, phone } =
 		req.body as IAddress;
 
 	try {
 		await db.connect();
+		const obj = await Address.find<IAddress>({ user });
 		const userAddress = await Address.findByIdAndUpdate(
-			_id,
+			obj[0]._id,
 			{
 				user,
 				firstName,

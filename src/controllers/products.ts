@@ -24,11 +24,10 @@ export const getProducts = async (req: Request, res: Response<Data>): Promise<vo
 		await db.connect();
 
 		if (gender === 'all') {
-			const products = await Product.find();
+			const products = await Product.find({});
+			await db.disconnect();
 
 			res.status(200).json(products);
-
-			await db.disconnect();
 
 			return;
 		}
@@ -37,11 +36,11 @@ export const getProducts = async (req: Request, res: Response<Data>): Promise<vo
 			.select('gender title images price slug inStock description -_id')
 			.lean();
 
+		await db.disconnect();
 		res.status(200).json(products);
-		await db.disconnect();
 	} catch (error) {
-		res.status(404).json({ message: 'Server Error.' });
 		await db.disconnect();
+		res.status(404).json({ message: 'Server Error.' });
 	}
 };
 
@@ -60,15 +59,17 @@ export const getProductBySlug = async (req: Request, res: Response<Data>): Promi
 				message: 'Product not found.',
 			});
 
+			await db.disconnect();
+
 			return;
 		}
 
-		res.status(200).json(product);
 		await db.disconnect();
+		res.status(200).json(product);
 	} catch (error) {
+		await db.disconnect();
 		res.status(404).json({
 			message: 'Server Error.',
 		});
-		await db.disconnect();
 	}
 };

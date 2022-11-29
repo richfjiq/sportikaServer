@@ -69,6 +69,7 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(400).json({
             message: 'Email already exists.',
         });
+        yield database_1.db.disconnect();
         return;
     }
     const newUser = new models_1.User({
