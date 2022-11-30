@@ -9,10 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createOrder = void 0;
+exports.getOrdersByUser = exports.getOrderById = exports.createOrder = void 0;
 const axios_1 = require("axios");
 const database_1 = require("../database");
 const models_1 = require("../models");
+const mongoose_1 = require("mongoose");
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const { orderItems, total } = req.body;
@@ -61,4 +62,38 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     res.status(201).json(req.body);
 });
 exports.createOrder = createOrder;
+const getOrderById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { orderId } = req.params;
+    if (!(0, mongoose_1.isValidObjectId)(orderId)) {
+        res.status(400).json({
+            message: 'Invalid id.',
+        });
+        return;
+    }
+    yield database_1.db.connect();
+    const order = yield models_1.Order.findById(orderId).select('-__v -createdAt');
+    yield database_1.db.disconnect();
+    if (order === null) {
+        res.status(400).json({
+            message: 'Order not found.',
+        });
+        return;
+    }
+    res.status(201).json(order);
+});
+exports.getOrderById = getOrderById;
+const getOrdersByUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    if (!(0, mongoose_1.isValidObjectId)(userId)) {
+        res.status(400).json({
+            message: 'Invalid id.',
+        });
+        return;
+    }
+    yield database_1.db.connect();
+    const orders = yield models_1.Order.find({ user: userId }).select('_id isPaid shippingAddress updatedAt');
+    yield database_1.db.disconnect();
+    res.status(201).json(orders);
+});
+exports.getOrdersByUser = getOrdersByUser;
 //# sourceMappingURL=orders.js.map

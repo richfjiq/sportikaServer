@@ -4,6 +4,7 @@ import { AxiosError } from 'axios';
 import { db } from '../database';
 import { IOrder, IUser } from '../interfaces';
 import { Order, Product } from '../models';
+import { isValidObjectId } from 'mongoose';
 
 interface CustomRequest extends Request {
 	user?: IUser;
@@ -73,4 +74,45 @@ export const createOrder = async (req: CustomRequest, res: Response<Data>): Prom
 	}
 	await db.disconnect();
 	res.status(201).json(req.body);
+};
+
+export const getOrderById = async (req: Request, res: Response): Promise<void> => {
+	const { orderId } = req.params;
+
+	if (!isValidObjectId(orderId)) {
+		res.status(400).json({
+			message: 'Invalid id.',
+		});
+		return;
+	}
+
+	await db.connect();
+	const order = await Order.findById(orderId).select('-__v -createdAt');
+	await db.disconnect();
+
+	if (order === null) {
+		res.status(400).json({
+			message: 'Order not found.',
+		});
+		return;
+	}
+
+	res.status(201).json(order);
+};
+
+export const getOrdersByUser = async (req: Request, res: Response): Promise<void> => {
+	const { userId } = req.params;
+
+	if (!isValidObjectId(userId)) {
+		res.status(400).json({
+			message: 'Invalid id.',
+		});
+		return;
+	}
+
+	await db.connect();
+	const orders = await Order.find({ user: userId }).select('_id isPaid shippingAddress updatedAt');
+	await db.disconnect();
+
+	res.status(201).json(orders);
 };

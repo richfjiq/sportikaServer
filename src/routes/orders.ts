@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { checkJWT } from '../middlewares';
 
-import { createOrder } from '../controllers/orders';
+import { createOrder, getOrderById, getOrdersByUser } from '../controllers/orders';
 
 const router = Router();
 
 router.post('/', [checkJWT], createOrder);
-// router.post('/pay');
+router.get('/:orderId', [checkJWT], getOrderById);
+router.get('/user/:userId', [checkJWT], getOrdersByUser);
 
 export default router;
