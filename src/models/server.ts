@@ -8,6 +8,7 @@ import orderRoutes from '../routes/orders';
 import productRoutes from '../routes/products';
 import searchRoutes from '../routes/search';
 import userRoutes from '../routes/user';
+import paymentRoutes from '../routes/payment';
 import { checkJWT, isAdminRole } from '../middlewares';
 
 dotenv.config();
@@ -22,6 +23,7 @@ class Server {
 		products: '/api/products',
 		search: '/api/search',
 		user: '/api/user',
+		payment: '/api/payment',
 	};
 
 	constructor() {
@@ -54,6 +56,7 @@ class Server {
 		this.app.use(this.apiPaths.products, productRoutes);
 		this.app.use(this.apiPaths.search, searchRoutes);
 		this.app.use(this.apiPaths.user, userRoutes);
+		this.app.use(this.apiPaths.payment, paymentRoutes);
 	}
 }
 

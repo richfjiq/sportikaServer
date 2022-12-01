@@ -12,6 +12,7 @@ const orders_1 = __importDefault(require("../routes/orders"));
 const products_1 = __importDefault(require("../routes/products"));
 const search_1 = __importDefault(require("../routes/search"));
 const user_1 = __importDefault(require("../routes/user"));
+const payment_1 = __importDefault(require("../routes/payment"));
 const middlewares_1 = require("../middlewares");
 dotenv_1.default.config();
 class Server {
@@ -24,6 +25,7 @@ class Server {
             products: '/api/products',
             search: '/api/search',
             user: '/api/user',
+            payment: '/api/payment',
         };
         this.app = (0, express_1.default)();
         this.port = (_a = process.env.PORT) !== null && _a !== void 0 ? _a : '8080';
@@ -49,6 +51,7 @@ class Server {
         this.app.use(this.apiPaths.products, products_1.default);
         this.app.use(this.apiPaths.search, search_1.default);
         this.app.use(this.apiPaths.user, user_1.default);
+        this.app.use(this.apiPaths.payment, payment_1.default);
     }
 }
 exports.default = Server;
