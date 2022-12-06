@@ -48,6 +48,9 @@ const userSchema = new mongoose_1.Schema({
             required: true,
         },
     },
+    customerIdStripe: {
+        type: String,
+    },
 }, {
     timestamps: true,
 });

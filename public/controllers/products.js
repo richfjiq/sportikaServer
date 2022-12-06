@@ -22,14 +22,12 @@ const getProducts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         yield database_1.db.connect();
         if (gender === 'all') {
-            const products = yield models_1.Product.find({});
+            const products = yield models_1.Product.find({}).select('title images price slug gender').lean();
             yield database_1.db.disconnect();
             res.status(200).json(products);
             return;
         }
-        const products = yield models_1.Product.find(condition)
-            .select('gender title images price slug inStock description -_id')
-            .lean();
+        const products = yield models_1.Product.find(condition).select('title images price slug gender').lean();
         yield database_1.db.disconnect();
         res.status(200).json(products);
     }

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getOrdersByUser = exports.getOrderById = exports.createOrder = void 0;
+exports.updateOrder = exports.getOrdersByUser = exports.getOrderById = exports.createOrder = void 0;
 const axios_1 = require("axios");
 const database_1 = require("../database");
 const models_1 = require("../models");
@@ -19,14 +19,12 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const { orderItems, total } = req.body;
     const user = req.user;
     const productsIds = orderItems.map((product) => product._id);
-    yield database_1.db.connect();
-    const dbProducts = yield models_1.Product.find({ _id: { $in: productsIds } });
     try {
+        yield database_1.db.connect();
+        const dbProducts = yield models_1.Product.find({ _id: { $in: productsIds } });
         const subTotal = orderItems.reduce((prev, current) => {
             var _a;
-            const currentPrice = (_a = dbProducts.find(
-            // data from db use product.id not product._id
-            (product) => product.id === current._id)) === null || _a === void 0 ? void 0 : _a.price;
+            const currentPrice = (_a = dbProducts.find((product) => product.id === current._id)) === null || _a === void 0 ? void 0 : _a.price;
             if (currentPrice === undefined) {
                 throw new Error('Verify the cart, product does not exist.');
             }
@@ -55,11 +53,8 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             res.status(400).json({
                 message: error.message,
             });
-            return;
         }
     }
-    yield database_1.db.disconnect();
-    res.status(201).json(req.body);
 });
 exports.createOrder = createOrder;
 const getOrderById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -96,4 +91,22 @@ const getOrdersByUser = (req, res) => __awaiter(void 0, void 0, void 0, function
     res.status(201).json(orders);
 });
 exports.getOrdersByUser = getOrdersByUser;
+const updateOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { orderId } = req.params;
+    try {
+        yield database_1.db.connect();
+        const order = yield models_1.Order.findByIdAndUpdate(orderId, req.body, { new: true });
+        if (order === null) {
+            res.status(400).json({ message: 'Order does not exist.' });
+            return;
+        }
+        yield database_1.db.disconnect();
+        res.status(200).json(order);
+    }
+    catch (error) {
+        yield database_1.db.disconnect();
+        res.status(400).json({ message: 'Server Error.' });
+    }
+});
+exports.updateOrder = updateOrder;
 //# sourceMappingURL=orders.js.map

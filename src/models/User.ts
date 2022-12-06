@@ -26,6 +26,9 @@ const userSchema = new Schema(
 				required: true,
 			},
 		},
+		customerIdStripe: {
+			type: String,
+		},
 	},
 	{
 		timestamps: true,

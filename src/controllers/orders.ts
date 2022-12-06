@@ -21,16 +21,14 @@ export const createOrder = async (req: CustomRequest, res: Response<Data>): Prom
 	const user = req.user as IUser;
 
 	const productsIds = orderItems.map((product) => product._id);
-	await db.connect();
-
-	const dbProducts = await Product.find({ _id: { $in: productsIds } });
 
 	try {
+		await db.connect();
+
+		const dbProducts = await Product.find({ _id: { $in: productsIds } });
+
 		const subTotal = orderItems.reduce((prev, current) => {
-			const currentPrice = dbProducts.find(
-				// data from db use product.id not product._id
-				(product) => product.id === current._id,
-			)?.price;
+			const currentPrice = dbProducts.find((product) => product.id === current._id)?.price;
 			if (currentPrice === undefined) {
 				throw new Error('Verify the cart, product does not exist.');
 			}
@@ -54,6 +52,7 @@ export const createOrder = async (req: CustomRequest, res: Response<Data>): Prom
 		newOrder.total = Math.round(newOrder.total * 100) / 100;
 
 		await newOrder.save();
+
 		await db.disconnect();
 
 		res.status(201).json(newOrder);
@@ -69,11 +68,8 @@ export const createOrder = async (req: CustomRequest, res: Response<Data>): Prom
 			res.status(400).json({
 				message: error.message,
 			});
-			return;
 		}
 	}
-	await db.disconnect();
-	res.status(201).json(req.body);
 };
 
 export const getOrderById = async (req: Request, res: Response): Promise<void> => {
@@ -115,4 +111,22 @@ export const getOrdersByUser = async (req: Request, res: Response): Promise<void
 	await db.disconnect();
 
 	res.status(201).json(orders);
+};
+
+export const updateOrder = async (req: Request, res: Response): Promise<void> => {
+	const { orderId } = req.params;
+
+	try {
+		await db.connect();
+		const order = await Order.findByIdAndUpdate(orderId, req.body, { new: true });
+		if (order === null) {
+			res.status(400).json({ message: 'Order does not exist.' });
+			return;
+		}
+		await db.disconnect();
+		res.status(200).json(order);
+	} catch (error) {
+		await db.disconnect();
+		res.status(400).json({ message: 'Server Error.' });
+	}
 };

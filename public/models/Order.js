@@ -54,6 +54,7 @@ const orderSchema = new mongoose_1.Schema({
     subTotal: { type: Number, required: true },
     tax: { type: Number, required: true },
     total: { type: Number, required: true },
+    paymentId: { type: String },
     isPaid: { type: Boolean, required: true, default: false },
     paidAt: { type: String },
     transactionId: { type: String },
