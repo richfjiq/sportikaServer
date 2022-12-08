@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import { db } from '../database';
 import { User } from '../models';
 import { jwt, validations } from '../utils';
-import { IUser } from '../interfaces';
+import { IUser, IUserUpdate } from '../interfaces';
 
 type Data =
 	| {
@@ -120,6 +120,50 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 			name,
 		},
 	});
+};
+
+export const updateUser = async (req: Request, res: Response<Data>): Promise<void> => {
+	const { userId } = req.params;
+	const { name, email, currentPassword, newPassword } = req.body as IUserUpdate;
+
+	try {
+		await db.connect();
+
+		const user = await User.findById(userId);
+
+		if (user === null) {
+			res.status(400).json({ message: 'There is no user with this id.' });
+			return;
+		}
+
+		if (!bcrypt.compareSync(currentPassword, user.password as string)) {
+			res.status(400).json({ message: 'Current password is incorrect.' });
+			return;
+		}
+
+		await user.update({
+			name,
+			email,
+			password: bcrypt.hashSync(newPassword),
+		});
+
+		await db.disconnect();
+
+		res.status(200).json({
+			token: jwt.signToken(user._id, email),
+			user: {
+				_id: user._id,
+				email,
+				role: user.role,
+				name,
+			},
+		});
+	} catch (error) {
+		await db.disconnect();
+		res.status(401).json({
+			message: 'Auth token is not valid.',
+		});
+	}
 };
 
 export const checkJWT = async (req: Request, res: Response<Data>): Promise<void> => {

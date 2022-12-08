@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.checkJWT = exports.registerUser = exports.loginUser = void 0;
+exports.checkJWT = exports.updateUser = exports.registerUser = exports.loginUser = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const database_1 = require("../database");
 const models_1 = require("../models");
@@ -102,6 +102,44 @@ const registerUser = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     });
 });
 exports.registerUser = registerUser;
+const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req.params;
+    const { name, email, currentPassword, newPassword } = req.body;
+    try {
+        yield database_1.db.connect();
+        const user = yield models_1.User.findById(userId);
+        if (user === null) {
+            res.status(400).json({ message: 'There is no user with this id.' });
+            return;
+        }
+        if (!bcryptjs_1.default.compareSync(currentPassword, user.password)) {
+            res.status(400).json({ message: 'Current password is incorrect.' });
+            return;
+        }
+        yield user.update({
+            name,
+            email,
+            password: bcryptjs_1.default.hashSync(newPassword),
+        });
+        yield database_1.db.disconnect();
+        res.status(200).json({
+            token: utils_1.jwt.signToken(user._id, email),
+            user: {
+                _id: user._id,
+                email,
+                role: user.role,
+                name,
+            },
+        });
+    }
+    catch (error) {
+        yield database_1.db.disconnect();
+        res.status(401).json({
+            message: 'Auth token is not valid.',
+        });
+    }
+});
+exports.updateUser = updateUser;
 const checkJWT = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const token = (_a = req.header('x-token')) !== null && _a !== void 0 ? _a : '';

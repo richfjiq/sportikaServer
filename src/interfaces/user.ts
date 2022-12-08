@@ -8,3 +8,11 @@ export interface IUser {
 	createdAt?: string;
 	updatedAt?: string;
 }
+
+export interface IUserUpdate {
+	name: string;
+	email: string;
+	currentPassword: string;
+	newPassword: string;
+	newPassword2: string;
+}
