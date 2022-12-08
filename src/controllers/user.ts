@@ -129,31 +129,30 @@ export const checkJWT = async (req: Request, res: Response<Data>): Promise<void>
 
 	try {
 		userId = await jwt.isValidToken(token);
+
+		await db.connect();
+		const user = await User.findById(userId).lean();
+		await db.disconnect();
+
+		if (user === null) {
+			res.status(400).json({ message: 'There is no user with this id.' });
+			return;
+		}
+
+		const { _id, email, role, name } = user;
+
+		res.status(200).json({
+			token: jwt.signToken(_id, email),
+			user: {
+				_id,
+				email,
+				role,
+				name,
+			},
+		});
 	} catch (error) {
 		res.status(401).json({
 			message: 'Auth token is not valid.',
 		});
-		return;
 	}
-
-	await db.connect();
-	const user = await User.findById(userId).lean();
-	await db.disconnect();
-
-	if (user === null) {
-		res.status(400).json({ message: 'There is no user with this id.' });
-		return;
-	}
-
-	const { _id, email, role, name } = user;
-
-	res.status(200).json({
-		token: jwt.signToken(_id, email),
-		user: {
-			_id,
-			email,
-			role,
-			name,
-		},
-	});
 };

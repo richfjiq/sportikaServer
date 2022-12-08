@@ -108,30 +108,29 @@ const checkJWT = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let userId = '';
     try {
         userId = yield utils_1.jwt.isValidToken(token);
+        yield database_1.db.connect();
+        const user = yield models_1.User.findById(userId).lean();
+        yield database_1.db.disconnect();
+        if (user === null) {
+            res.status(400).json({ message: 'There is no user with this id.' });
+            return;
+        }
+        const { _id, email, role, name } = user;
+        res.status(200).json({
+            token: utils_1.jwt.signToken(_id, email),
+            user: {
+                _id,
+                email,
+                role,
+                name,
+            },
+        });
     }
     catch (error) {
         res.status(401).json({
             message: 'Auth token is not valid.',
         });
-        return;
     }
-    yield database_1.db.connect();
-    const user = yield models_1.User.findById(userId).lean();
-    yield database_1.db.disconnect();
-    if (user === null) {
-        res.status(400).json({ message: 'There is no user with this id.' });
-        return;
-    }
-    const { _id, email, role, name } = user;
-    res.status(200).json({
-        token: utils_1.jwt.signToken(_id, email),
-        user: {
-            _id,
-            email,
-            role,
-            name,
-        },
-    });
 });
 exports.checkJWT = checkJWT;
 //# sourceMappingURL=user.js.map
