@@ -21,20 +21,19 @@ export const getProducts = async (req: Request, res: Response<Data>): Promise<vo
 	}
 
 	try {
-		await db.connect();
-
 		if (gender === 'all') {
+			await db.connect();
 			const products = await Product.find({}).select('title images price slug gender').lean();
 			await db.disconnect();
 
 			res.status(200).json(products);
-
 			return;
 		}
 
+		await db.connect();
 		const products = await Product.find(condition).select('title images price slug gender').lean();
-
 		await db.disconnect();
+
 		res.status(200).json(products);
 	} catch (error) {
 		await db.disconnect();

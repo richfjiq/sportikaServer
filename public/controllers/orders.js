@@ -86,7 +86,9 @@ const getOrdersByUser = (req, res) => __awaiter(void 0, void 0, void 0, function
         return;
     }
     yield database_1.db.connect();
-    const orders = yield models_1.Order.find({ user: userId }).select('_id isPaid shippingAddress updatedAt');
+    const orders = yield models_1.Order.find({ user: userId })
+        .select('_id isPaid shippingAddress updatedAt')
+        .sort({ updatedAt: -1 });
     yield database_1.db.disconnect();
     res.status(201).json(orders);
 });

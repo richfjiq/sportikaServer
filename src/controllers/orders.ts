@@ -107,7 +107,9 @@ export const getOrdersByUser = async (req: Request, res: Response): Promise<void
 	}
 
 	await db.connect();
-	const orders = await Order.find({ user: userId }).select('_id isPaid shippingAddress updatedAt');
+	const orders = await Order.find({ user: userId })
+		.select('_id isPaid shippingAddress updatedAt')
+		.sort({ updatedAt: -1 });
 	await db.disconnect();
 
 	res.status(201).json(orders);

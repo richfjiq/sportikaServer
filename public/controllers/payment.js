@@ -46,7 +46,7 @@ const paymentSheet = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         yield database_1.db.disconnect();
         const ephemeralKey = yield stripe.ephemeralKeys.create({ customer: customerId }, { apiVersion: '2020-03-02' });
         const paymentIntent = yield stripe.paymentIntents.create({
-            amount: Number(order === null || order === void 0 ? void 0 : order.total) * 100,
+            amount: Math.round(Number(order === null || order === void 0 ? void 0 : order.total) * 100),
             currency: 'usd',
             customer: customerId,
             automatic_payment_methods: {

@@ -44,7 +44,7 @@ export const paymentSheet = async (req: Request, res: Response): Promise<void> =
 		);
 
 		const paymentIntent = await stripe.paymentIntents.create({
-			amount: Number(order?.total) * 100,
+			amount: Math.round(Number(order?.total) * 100),
 			currency: 'usd',
 			customer: customerId,
 			automatic_payment_methods: {
