@@ -7,9 +7,11 @@
 		"node": "14.x"
 	},
 	"scripts": {
-		"build": "npx tsc",
-		"start": "node public/",
-		"dev": "npx tsc --watch & nodemon public/",
+		"build": "rimraf dist && tsc",
+		"start": "nodemon src/index.ts",
+		"ts.check": "tsc --project tsconfig.json",
+		"add-build": "git add dist",
+		"dev": "npx tsc --watch & nodemon dist/",
 		"lint": "eslint --ext .ts src/ --max-warnings 0",
 		"prepare": "husky install"
 	},
@@ -30,7 +32,9 @@
 		"eslint-plugin-promise": "^6.0.0",
 		"husky": "^8.0.0",
 		"lint-staged": "^13.0.3",
+		"pre-commit": "^1.2.2",
 		"prettier": "^2.7.1",
+		"rimraf": "^3.0.2",
 		"typescript": "*"
 	},
 	"lint-staged": {
@@ -50,5 +54,10 @@
 		"jsonwebtoken": "^8.5.1",
 		"mongoose": "^6.7.0",
 		"stripe": "^11.1.0"
-	}
+	},
+	"pre-commit": [
+		"ts.check",
+		"build",
+		"add-build"
+	]
 }

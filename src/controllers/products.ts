@@ -23,7 +23,9 @@ export const getProducts = async (req: Request, res: Response<Data>): Promise<vo
 	try {
 		if (gender === 'all') {
 			await db.connect();
-			const products = await Product.find({}).select('title images price slug gender').lean();
+			const products = await Product.find({})
+				.select('title images price slug gender description')
+				.lean();
 			await db.disconnect();
 
 			res.status(200).json(products);
@@ -31,7 +33,9 @@ export const getProducts = async (req: Request, res: Response<Data>): Promise<vo
 		}
 
 		await db.connect();
-		const products = await Product.find(condition).select('title images price slug gender').lean();
+		const products = await Product.find(condition)
+			.select('title images price slug gender description')
+			.lean();
 		await db.disconnect();
 
 		res.status(200).json(products);
