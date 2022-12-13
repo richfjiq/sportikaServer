@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
+import sgMail, { MailDataRequired } from '@sendgrid/mail';
 
 import { db } from '../database';
 import { User } from '../models';
 import { jwt, validations } from '../utils';
 import { IUser, IUserUpdate } from '../interfaces';
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? '');
 
 type Data =
 	| {
@@ -20,35 +23,55 @@ type Data =
 			};
 	  };
 
+const sendWelcomeMail = async (msg: MailDataRequired): Promise<void> => {
+	try {
+		await sgMail.send(msg);
+		// eslint-disable-next-line no-console
+		console.log('Welcome email, sent successfully :)');
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.log({ error });
+	}
+};
+
 export const loginUser = async (req: Request, res: Response<Data>): Promise<void> => {
 	const { email = '', password = '' } = req.body;
 
-	await db.connect();
-	const user: IUser | null = await User.findOne({ email });
-	await db.disconnect();
+	try {
+		await db.connect();
+		const user: IUser | null = await User.findOne({ email });
+		await db.disconnect();
 
-	if (user === null) {
-		res.status(400).json({ message: 'Email / Password not valid - Email' });
-		return;
+		if (user === null) {
+			res.status(400).json({ message: 'Email / Password not valid - Email' });
+			return;
+		}
+
+		if (!bcrypt.compareSync(password, String(user.password))) {
+			res.status(400).json({ message: 'Email / Password not valid - Password' });
+			return;
+		}
+
+		const { role, name, _id } = user;
+		const token = jwt.signToken(_id, email);
+
+		res.status(200).json({
+			token,
+			user: {
+				_id,
+				email,
+				role,
+				name,
+			},
+		});
+	} catch (error) {
+		await db.disconnect();
+		// eslint-disable-next-line no-console
+		console.log('error loginUser =======', error);
+		res.status(500).json({
+			message: 'Server error',
+		});
 	}
-
-	if (!bcrypt.compareSync(password, String(user.password))) {
-		res.status(400).json({ message: 'Email / Password not valid - Password' });
-		return;
-	}
-
-	const { role, name, _id } = user;
-	const token = jwt.signToken(_id, email);
-
-	res.status(200).json({
-		token,
-		user: {
-			_id,
-			email,
-			role,
-			name,
-		},
-	});
 };
 
 export const registerUser = async (req: Request, res: Response<Data>): Promise<void> => {
@@ -79,47 +102,59 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 		return;
 	}
 
-	await db.connect();
-	const user = await User.findOne({ email });
-
-	if (user !== null) {
-		res.status(400).json({
-			message: 'Email already exists.',
-		});
-		await db.disconnect();
-		return;
-	}
-
-	const newUser = new User({
-		email: email.toLocaleLowerCase(),
-		password: bcrypt.hashSync(password),
-		role: 'client',
-		name,
-	});
-
 	try {
+		await db.connect();
+		const user = await User.findOne({ email });
+
+		if (user !== null) {
+			res.status(400).json({
+				message: 'Email already exists.',
+			});
+			await db.disconnect();
+			return;
+		}
+
+		const newUser = new User({
+			email: email.toLocaleLowerCase(),
+			password: bcrypt.hashSync(password),
+			role: 'client',
+			name,
+		});
+
 		await newUser.save({ validateBeforeSave: true });
+
+		const { _id, role } = newUser;
+		const token = jwt.signToken(_id, email);
+
+		await db.disconnect();
+
+		const emailData = {
+			to: newUser.email,
+			from: 'rfjiq1986@gmail.com',
+			subject: 'Welcome to Sportika Shop',
+			text: 'You can start buying what you need in order to practice your favorite sport :)',
+		};
+
+		await sendWelcomeMail(emailData);
+
+		res.status(200).json({
+			token,
+			user: {
+				_id,
+				email,
+				role,
+				name,
+			},
+		});
 	} catch (error) {
 		// eslint-disable-next-line no-console
-		console.log(error);
+		console.log('register error +++++++', error);
+		await db.disconnect();
+
 		res.status(500).json({
 			message: 'Server error',
 		});
-		return;
 	}
-
-	const { _id, role } = newUser;
-	const token = jwt.signToken(_id, email);
-
-	res.status(200).json({
-		token,
-		user: {
-			_id,
-			email,
-			role,
-			name,
-		},
-	});
 };
 
 export const updateUser = async (req: Request, res: Response<Data>): Promise<void> => {
@@ -195,6 +230,9 @@ export const checkJWT = async (req: Request, res: Response<Data>): Promise<void>
 			},
 		});
 	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.log('checkJWT error ------', error);
+		await db.disconnect();
 		res.status(401).json({
 			message: 'Auth token is not valid.',
 		});
