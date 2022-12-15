@@ -1,10 +1,17 @@
 import { Request, Response } from 'express';
 import { AxiosError } from 'axios';
+import sgMail, { MailDataRequired } from '@sendgrid/mail';
+import Handlebars from 'handlebars';
+import path from 'path';
+import { readFileSync } from 'fs';
 
 import { db } from '../database';
 import { IOrder, IUser } from '../interfaces';
-import { Order, Product } from '../models';
+import { Order, Product, User } from '../models';
 import { isValidObjectId } from 'mongoose';
+import { currency } from '../utils';
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? '');
 
 interface CustomRequest extends Request {
 	user?: IUser;
@@ -15,6 +22,24 @@ type Data =
 			message: string;
 	  }
 	| IOrder;
+
+const sendOrderConfirmedMail = async (
+	type: 'confirm' | 'paid',
+	msg: MailDataRequired,
+): Promise<void> => {
+	try {
+		await sgMail.send(msg);
+		if (type === 'confirm') {
+			// eslint-disable-next-line no-console
+			console.log('Order Confirmed email, sent successfully!');
+		}
+		// eslint-disable-next-line no-console
+		console.log('Order Has Been Paid, sent successfully!');
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.log({ error });
+	}
+};
 
 export const createOrder = async (req: CustomRequest, res: Response<Data>): Promise<void> => {
 	const { orderItems, total } = req.body as IOrder;
@@ -54,6 +79,42 @@ export const createOrder = async (req: CustomRequest, res: Response<Data>): Prom
 		await newOrder.save();
 
 		await db.disconnect();
+
+		const pathHandlebars = path.join(__dirname, '../public/orderConfirmed.handlebars');
+		const fileHandlebars = readFileSync(pathHandlebars, 'utf-8');
+
+		const template = Handlebars.compile(fileHandlebars);
+
+		const items = newOrder.orderItems.map((item) => ({
+			image: item.image,
+			price: currency.currencyFormat(item.price),
+			title: item.title,
+			size: item.size,
+			quantity: item.quantity,
+		}));
+
+		const emailData = {
+			to: user.email,
+			from: 'rfjiq1986@gmail.com',
+			subject: 'Your order has been confirmed!',
+			html: template({
+				order: newOrder._id,
+				items,
+				name: `${newOrder.shippingAddress.firstName} ${newOrder.shippingAddress.lastName}`,
+				address: newOrder.shippingAddress.address,
+				city: `${newOrder.shippingAddress.city}, ${newOrder.shippingAddress?.state as string}, ${
+					newOrder.shippingAddress.zip
+				}`,
+				country: newOrder.shippingAddress.country,
+				phoneNumber: `${newOrder.shippingAddress.code} ${newOrder.shippingAddress.phone}`,
+				totalItems: newOrder.numberOfItems,
+				subtotal: currency.currencyFormat(newOrder.subTotal),
+				tax: currency.currencyFormat(newOrder.tax),
+				total: currency.currencyFormat(newOrder.total),
+			}),
+		};
+
+		await sendOrderConfirmedMail('confirm', emailData);
 
 		res.status(201).json(newOrder);
 	} catch (error) {
@@ -125,7 +186,45 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
 			res.status(400).json({ message: 'Order does not exist.' });
 			return;
 		}
+		const user = await User.findById(order.user);
 		await db.disconnect();
+
+		const pathHandlebars = path.join(__dirname, '../public/orderPaid.handlebars');
+		const fileHandlebars = readFileSync(pathHandlebars, 'utf-8');
+
+		const template = Handlebars.compile(fileHandlebars);
+
+		const items = order.orderItems.map((item) => ({
+			image: item.image,
+			price: currency.currencyFormat(item.price),
+			title: item.title,
+			size: item.size,
+			quantity: item.quantity,
+		}));
+
+		const emailData = {
+			to: user?.email,
+			from: 'rfjiq1986@gmail.com',
+			subject: 'Your order has been paid!',
+			html: template({
+				order: order._id,
+				items,
+				name: `${order.shippingAddress.firstName} ${order.shippingAddress.lastName}`,
+				address: order.shippingAddress.address,
+				city: `${order.shippingAddress.city}, ${order.shippingAddress?.state as string}, ${
+					order.shippingAddress.zip
+				}`,
+				country: order.shippingAddress.country,
+				phoneNumber: `${order.shippingAddress.code} ${order.shippingAddress.phone}`,
+				totalItems: order.numberOfItems,
+				subtotal: currency.currencyFormat(order.subTotal),
+				tax: currency.currencyFormat(order.tax),
+				total: currency.currencyFormat(order.total),
+			}),
+		};
+
+		await sendOrderConfirmedMail('paid', emailData);
+
 		res.status(200).json(order);
 	} catch (error) {
 		await db.disconnect();

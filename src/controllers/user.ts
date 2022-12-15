@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import sgMail, { MailDataRequired } from '@sendgrid/mail';
+import Handlebars from 'handlebars';
+import path from 'path';
+import { readFileSync } from 'fs';
 
 import { db } from '../database';
 import { User } from '../models';
@@ -102,6 +105,11 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 		return;
 	}
 
+	const pathHandlebars = path.join(__dirname, '../public/welcome.handlebars');
+	const fileHandlebars = readFileSync(pathHandlebars, 'utf-8');
+
+	const template = Handlebars.compile(fileHandlebars);
+
 	try {
 		await db.connect();
 		const user = await User.findOne({ email });
@@ -131,8 +139,8 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 		const emailData = {
 			to: newUser.email,
 			from: 'rfjiq1986@gmail.com',
-			subject: 'Welcome to Sportika Shop',
-			text: 'You can start buying what you need in order to practice your favorite sport :)',
+			subject: 'Congratulations! You are made it!',
+			html: template({ name }),
 		};
 
 		await sendWelcomeMail(emailData);
