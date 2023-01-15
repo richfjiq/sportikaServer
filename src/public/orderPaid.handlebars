@@ -5,17 +5,9 @@
 		<meta name='viewport' content='width=device-width, initial-scale=1.0' />
 		<title>Welcome</title>
 	</head>
-	<body style='display: flex; justify-content: center'>
-		<div style='max-width: 500px; width: 100%; padding: 40px 0'>
-			<div
-				style='
-        display: flex;
-        flex-direction: column;
-        border: 1px solid lightgray;
-        border-radius: 10px;
-        padding: 20px 16px;
-      '
-			>
+	<body style='display: flex;'>
+		<div style='max-width: 500px; width: 100%; padding: 40px 0; margin: 0 auto;'>
+			<div style='border: 1px solid lightgray; border-radius: 10px; padding: 20px 16px;'>
 				<h1
 					style='
           font-family: Arial, Helvetica, sans-serif;
@@ -31,33 +23,30 @@
 				<hr style='width: 100%; margin-bottom: 20px' />
 
 				<div
-					style='
-          display: flex;
-          align-items: center;
-          margin-bottom: 20px;
-          border: 1px solid #379237;
-          align-self: flex-start;
-          padding: 7px 20px;
-          border-radius: 10px;
-        '
+					style='display: flex; margin-bottom: 20px; border: 1px solid #379237; padding: 7px 20px; border-radius: 10px;'
 				>
-					<img
-						src='https://res.cloudinary.com/dlz1bhh8j/image/upload/v1671128525/sportika/ye0czgvx9bmirgbqqkrx.png'
-					/>
-					<p
-						style='
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 15px;
-            text-transform: uppercase;
-            font-weight: 500;
-            color: #379237;
-            margin-left: 10px;
-            margin-top: 0;
-            margin-bottom: 0;
-          '
-					>
-						Order Paid
-					</p>
+					<div style='display: flex; margin: 0 auto;'>
+						<div style='width: 31px; height: 24px;'>
+							<img
+								src='https://res.cloudinary.com/dlz1bhh8j/image/upload/v1671128525/sportika/ye0czgvx9bmirgbqqkrx.png'
+							/>
+						</div>
+						<div style='margin: auto 10px;'>
+							<p
+								style='
+									font-family: Arial, Helvetica, sans-serif;
+									font-size: 15px;
+									text-transform: uppercase;
+									font-weight: 500;
+									color: #379237;
+									margin-top: 0;
+									margin-bottom: 0;
+								'
+							>
+								Order Paid
+							</p>
+						</div>
+					</div>
 				</div>
 
 				{{#each items}}
@@ -206,26 +195,25 @@
           justify-content: space-between;
         '
 				>
-					<p
-						style='
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 16px;
-            text-transform: uppercase;
-          '
-					>
-						Items
-					</p>
-					<p
-						style='
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 16px;
-            text-transform: uppercase;
-          '
-					>
-						{{totalItems}}
-					</p>
+					<div style='width: 50%'>
+						<p
+							style='
+							margin: 0;
+							font-family: Arial, Helvetica, sans-serif;
+							font-size: 16px;
+							text-transform: uppercase;
+						'
+						>
+							Items
+						</p>
+					</div>
+					<div style='width: 50%'>
+						<p
+							style='text-align: end; margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 16px; text-transform: uppercase;'
+						>
+							{{totalItems}}
+						</p>
+					</div>
 				</div>
 
 				<div
@@ -236,26 +224,25 @@
           justify-content: space-between;
         '
 				>
-					<p
-						style='
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 16px;
-            text-transform: uppercase;
-          '
-					>
-						Subtotal
-					</p>
-					<p
-						style='
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 16px;
-            text-transform: uppercase;
-          '
-					>
-						{{subtotal}}
-					</p>
+					<div style='width: 50%'>
+						<p
+							style='
+							margin: 0;
+							font-family: Arial, Helvetica, sans-serif;
+							font-size: 16px;
+							text-transform: uppercase;
+						'
+						>
+							Subtotal
+						</p>
+					</div>
+					<div style='width: 50%'>
+						<p
+							style='text-align: end; margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 16px; text-transform: uppercase;'
+						>
+							{{subtotal}}
+						</p>
+					</div>
 				</div>
 
 				<div
@@ -266,26 +253,25 @@
           justify-content: space-between;
         '
 				>
-					<p
-						style='
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 16px;
-            text-transform: uppercase;
-          '
-					>
-						Tax (15 %)
-					</p>
-					<p
-						style='
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 16px;
-            text-transform: uppercase;
-          '
-					>
-						{{tax}}
-					</p>
+					<div style='width: 50%'>
+						<p
+							style='
+							margin: 0;
+							font-family: Arial, Helvetica, sans-serif;
+							font-size: 16px;
+							text-transform: uppercase;
+						'
+						>
+							Tax (15 %)
+						</p>
+					</div>
+					<div style='width: 50%'>
+						<p
+							style='text-align: end; margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 16px; text-transform: uppercase;'
+						>
+							{{tax}}
+						</p>
+					</div>
 				</div>
 
 				<div
@@ -296,26 +282,25 @@
           justify-content: space-between;
         '
 				>
-					<h3
-						style='
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 16px;
-            text-transform: uppercase;
-          '
-					>
-						Total
-					</h3>
-					<h3
-						style='
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 16px;
-            text-transform: uppercase;
-          '
-					>
-						{{total}}
-					</h3>
+					<div style='width: 50%'>
+						<h3
+							style='
+							margin: 0;
+							font-family: Arial, Helvetica, sans-serif;
+							font-size: 16px;
+							text-transform: uppercase;
+						'
+						>
+							Total
+						</h3>
+					</div>
+					<div style='width: 50%'>
+						<h3
+							style='text-align: end; margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 16px; text-transform: uppercase;'
+						>
+							{{total}}
+						</h3>
+					</div>
 				</div>
 			</div>
 		</div>
