@@ -54,7 +54,7 @@ export const updateAddress = async (req: Request, res: Response): Promise<void> 
 				phone,
 			},
 			{ new: true },
-		);
+		).select('-__v');
 		res.status(201).json(userAddress);
 		await db.disconnect();
 	} catch (error) {

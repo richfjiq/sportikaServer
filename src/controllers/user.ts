@@ -132,6 +132,7 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 			password: bcrypt.hashSync(password),
 			role: 'client',
 			name,
+			type: 'credentials',
 		});
 
 		await newUser.save({ validateBeforeSave: true });
