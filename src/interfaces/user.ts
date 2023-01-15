@@ -4,6 +4,7 @@ export interface IUser {
 	email: string;
 	password?: string;
 	role: string;
+	type?: string;
 	customerIdStripe?: string;
 	createdAt?: string;
 	updatedAt?: string;

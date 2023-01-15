@@ -26,6 +26,15 @@ const userSchema = new Schema(
 				required: true,
 			},
 		},
+		type: {
+			type: String,
+			enum: {
+				values: ['credentials', 'googleAuthentication'],
+				message: '{VALUE} is not a valid type.',
+				default: 'credentials',
+				required: true,
+			},
+		},
 		customerIdStripe: {
 			type: String,
 		},

@@ -4,13 +4,16 @@ import sgMail, { MailDataRequired } from '@sendgrid/mail';
 import Handlebars from 'handlebars';
 import path from 'path';
 import { readFileSync } from 'fs';
+import { OAuth2Client } from 'google-auth-library';
 
 import { db } from '../database';
 import { User } from '../models';
 import { jwt, validations } from '../utils';
 import { IUser, IUserUpdate } from '../interfaces';
 
+const googleId = process.env.GOOGLE_CLIENT_ID;
 sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? '');
+const client = new OAuth2Client(googleId);
 
 type Data =
 	| {
@@ -23,6 +26,7 @@ type Data =
 				email: string;
 				name: string;
 				role: string;
+				type?: string;
 			};
 	  };
 
@@ -55,7 +59,7 @@ export const loginUser = async (req: Request, res: Response<Data>): Promise<void
 			return;
 		}
 
-		const { role, name, _id } = user;
+		const { role, name, _id, type } = user;
 		const token = jwt.signToken(_id, email);
 
 		res.status(200).json({
@@ -65,6 +69,7 @@ export const loginUser = async (req: Request, res: Response<Data>): Promise<void
 				email,
 				role,
 				name,
+				type,
 			},
 		});
 	} catch (error) {
@@ -131,7 +136,7 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 
 		await newUser.save({ validateBeforeSave: true });
 
-		const { _id, role } = newUser;
+		const { _id, role, type } = newUser;
 		const token = jwt.signToken(_id, email);
 
 		await db.disconnect();
@@ -152,6 +157,7 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 				email,
 				role,
 				name,
+				type,
 			},
 		});
 	} catch (error) {
@@ -199,10 +205,97 @@ export const updateUser = async (req: Request, res: Response<Data>): Promise<voi
 				email,
 				role: user.role,
 				name,
+				type: user?.type,
 			},
 		});
 	} catch (error) {
 		await db.disconnect();
+		res.status(401).json({
+			message: 'Auth token is not valid.',
+		});
+	}
+};
+
+export const googleAuth = async (req: Request, res: Response<Data>): Promise<void> => {
+	try {
+		const tokenParams = req.params.token;
+
+		const ticket = await client.verifyIdToken({
+			idToken: tokenParams,
+			audience: googleId,
+		});
+		const userData = ticket.getPayload();
+
+		if (!validations.isValidEmail(userData?.email as string)) {
+			res.status(401).json({
+				message: 'Auth token is not valid.',
+			});
+			return;
+		}
+
+		const pathHandlebars = path.join(__dirname, '../public/welcome.handlebars');
+		const fileHandlebars = readFileSync(pathHandlebars, 'utf-8');
+
+		const template = Handlebars.compile(fileHandlebars);
+
+		await db.connect();
+		const user = await User.findOne({ email: userData?.email });
+
+		if (user !== null) {
+			const token = jwt.signToken(user._id, userData?.email as string);
+			await db.disconnect();
+
+			res.status(200).json({
+				token,
+				user: {
+					_id: user._id,
+					email: user.email,
+					role: user.role,
+					name: user.name,
+					type: user.type,
+				},
+			});
+
+			return;
+		}
+
+		const newUser = new User({
+			email: (userData?.email as string).toLocaleLowerCase(),
+			password: 'google_oAuth',
+			type: 'googleAuthentication',
+			role: 'client',
+			name: userData?.name,
+		});
+		await newUser.save({ validateBeforeSave: true });
+
+		const { _id, role, type, email, name } = newUser;
+		const token = jwt.signToken(_id, email);
+		await db.disconnect();
+
+		const emailData = {
+			to: newUser.email,
+			from: 'rfjiq1986@gmail.com',
+			subject: 'Congratulations! You are made it!',
+			html: template({ name }),
+		};
+
+		await sendWelcomeMail(emailData);
+
+		res.status(200).json({
+			token,
+			user: {
+				_id,
+				email,
+				role,
+				name,
+				type,
+			},
+		});
+	} catch (error) {
+		// eslint-disable-next-line no-console
+		console.log('register error +++++++', error);
+		await db.disconnect();
+
 		res.status(401).json({
 			message: 'Auth token is not valid.',
 		});
@@ -226,7 +319,7 @@ export const checkJWT = async (req: Request, res: Response<Data>): Promise<void>
 			return;
 		}
 
-		const { _id, email, role, name } = user;
+		const { _id, email, role, name, type } = user;
 
 		res.status(200).json({
 			token: jwt.signToken(_id, email),
@@ -235,6 +328,7 @@ export const checkJWT = async (req: Request, res: Response<Data>): Promise<void>
 				email,
 				role,
 				name,
+				type,
 			},
 		});
 	} catch (error) {
