@@ -9,7 +9,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { db } from '../database';
 import { User } from '../models';
 import { jwt, validations } from '../utils';
-import { IUser, IUserUpdate } from '../interfaces';
+import { IUser, IUserDataUpdate, IUserPasswordUpdate } from '../interfaces';
 
 const googleId = process.env.GOOGLE_CLIENT_ID;
 sgMail.setApiKey(process.env.SENDGRID_API_KEY ?? '');
@@ -172,9 +172,9 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 	}
 };
 
-export const updateUser = async (req: Request, res: Response<Data>): Promise<void> => {
+export const updateUserAccount = async (req: Request, res: Response<Data>): Promise<void> => {
 	const { userId } = req.params;
-	const { name, email, currentPassword, newPassword } = req.body as IUserUpdate;
+	const { name, email, currentPassword } = req.body as IUserDataUpdate;
 
 	try {
 		await db.connect();
@@ -194,7 +194,6 @@ export const updateUser = async (req: Request, res: Response<Data>): Promise<voi
 		await user.update({
 			name,
 			email,
-			password: bcrypt.hashSync(newPassword),
 		});
 
 		await db.disconnect();
@@ -211,8 +210,51 @@ export const updateUser = async (req: Request, res: Response<Data>): Promise<voi
 		});
 	} catch (error) {
 		await db.disconnect();
-		res.status(401).json({
-			message: 'Auth token is not valid.',
+		res.status(500).json({
+			message: 'Internal Server Error.',
+		});
+	}
+};
+
+export const updateUserPassword = async (req: Request, res: Response<Data>): Promise<void> => {
+	const { userId } = req.params;
+	const { currentPassword, newPassword } = req.body as IUserPasswordUpdate;
+
+	try {
+		await db.connect();
+
+		const user = await User.findById(userId);
+
+		if (user === null) {
+			res.status(400).json({ message: 'There is no user with this id.' });
+			return;
+		}
+
+		if (!bcrypt.compareSync(currentPassword, user.password as string)) {
+			res.status(400).json({ message: 'Current password is incorrect.' });
+			return;
+		}
+
+		await user.update({
+			password: bcrypt.hashSync(newPassword),
+		});
+
+		await db.disconnect();
+
+		res.status(200).json({
+			token: jwt.signToken(user._id, user.email),
+			user: {
+				_id: user._id,
+				email: user.email,
+				role: user.role,
+				name: user.name,
+				type: user?.type,
+			},
+		});
+	} catch (error) {
+		await db.disconnect();
+		res.status(500).json({
+			message: 'Internal Server Error.',
 		});
 	}
 };

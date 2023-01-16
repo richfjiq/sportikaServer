@@ -10,10 +10,13 @@ export interface IUser {
 	updatedAt?: string;
 }
 
-export interface IUserUpdate {
+export interface IUserDataUpdate {
 	name: string;
 	email: string;
 	currentPassword: string;
+}
+
+export interface IUserPasswordUpdate {
+	currentPassword: string;
 	newPassword: string;
-	newPassword2: string;
 }
