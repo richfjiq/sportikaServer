@@ -80,7 +80,7 @@ export const createOrder = async (req: CustomRequest, res: Response<Data>): Prom
 
 		await db.disconnect();
 
-		const pathHandlebars = path.join(__dirname, '../public/orderConfirmed.handlebars');
+		const pathHandlebars = path.join(__dirname, '../views/orderConfirmed.handlebars');
 		const fileHandlebars = readFileSync(pathHandlebars, 'utf-8');
 
 		const template = Handlebars.compile(fileHandlebars);
@@ -189,7 +189,7 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
 		const user = await User.findById(order.user);
 		await db.disconnect();
 
-		const pathHandlebars = path.join(__dirname, '../public/orderPaid.handlebars');
+		const pathHandlebars = path.join(__dirname, '../views/orderPaid.handlebars');
 		const fileHandlebars = readFileSync(pathHandlebars, 'utf-8');
 
 		const template = Handlebars.compile(fileHandlebars);

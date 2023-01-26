@@ -110,7 +110,7 @@ export const registerUser = async (req: Request, res: Response<Data>): Promise<v
 		return;
 	}
 
-	const pathHandlebars = path.join(__dirname, '../public/welcome.handlebars');
+	const pathHandlebars = path.join(__dirname, '../views/welcome.handlebars');
 	const fileHandlebars = readFileSync(pathHandlebars, 'utf-8');
 
 	const template = Handlebars.compile(fileHandlebars);
@@ -276,7 +276,7 @@ export const googleAuth = async (req: Request, res: Response<Data>): Promise<voi
 			return;
 		}
 
-		const pathHandlebars = path.join(__dirname, '../public/welcome.handlebars');
+		const pathHandlebars = path.join(__dirname, '../views/welcome.handlebars');
 		const fileHandlebars = readFileSync(pathHandlebars, 'utf-8');
 
 		const template = Handlebars.compile(fileHandlebars);

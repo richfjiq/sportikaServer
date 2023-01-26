@@ -9,7 +9,7 @@ import productRoutes from '../routes/products';
 import searchRoutes from '../routes/search';
 import userRoutes from '../routes/user';
 import paymentRoutes from '../routes/payment';
-import welcomeRoutes from '../routes/welcome';
+import homeRoutes from '../routes/home';
 import { checkJWT, isAdminRole } from '../middlewares';
 
 dotenv.config();
@@ -18,7 +18,7 @@ class Server {
 	private readonly app: Application;
 	private readonly port: string;
 	private readonly apiPaths = {
-		welcome: '/api',
+		home: '/',
 		admin: '/api/admin',
 		address: '/api/address',
 		orders: '/api/orders',
@@ -52,7 +52,7 @@ class Server {
 	}
 
 	routes(): void {
-		this.app.use(this.apiPaths.welcome, welcomeRoutes);
+		this.app.use(this.apiPaths.home, homeRoutes);
 		this.app.use(this.apiPaths.admin, [checkJWT, isAdminRole], adminRoutes);
 		this.app.use(this.apiPaths.address, addressRoutes);
 		this.app.use(this.apiPaths.orders, orderRoutes);

@@ -4,7 +4,7 @@ REST API - Sportika
 
 ## Demo link:
 
-Access my site at https://sportika-server.herokuapp.com/api
+Access my site at https://sportika-server.herokuapp.com
 
 ## About The App
 
