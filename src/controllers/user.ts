@@ -44,9 +44,11 @@ const sendWelcomeMail = async (msg: MailDataRequired): Promise<void> => {
 export const loginUser = async (req: Request, res: Response<Data>): Promise<void> => {
 	const { email = '', password = '' } = req.body;
 
+	const emailLowerCase = email.toLowerCase();
+
 	try {
 		await db.connect();
-		const user: IUser | null = await User.findOne({ email });
+		const user: IUser | null = await User.findOne({ email: emailLowerCase });
 		await db.disconnect();
 
 		if (user === null) {
@@ -60,13 +62,13 @@ export const loginUser = async (req: Request, res: Response<Data>): Promise<void
 		}
 
 		const { role, name, _id, type } = user;
-		const token = jwt.signToken(_id, email);
+		const token = jwt.signToken(_id, emailLowerCase);
 
 		res.status(200).json({
 			token,
 			user: {
 				_id,
-				email,
+				email: emailLowerCase,
 				role,
 				name,
 				type,
